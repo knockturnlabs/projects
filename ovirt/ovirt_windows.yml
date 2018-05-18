@@ -6,9 +6,9 @@
     - name: Create VM
       ovirt_vms:
         state: present
-        name: AD
+        name: TestPC
         cluster: Default
-        memory: 2GiB
+        memory: 1GiB
         cpu_cores: 2
         cpu_sockets: 2
         cpu_shares: 1024
@@ -26,11 +26,11 @@
       ovirt_disk:
         format: cow
         interface: virtio
-        name: AD_disk1
+        name: Test_disk1
         size: 50GiB
         state: present
         storage_domain: VM_Storage1
-        vm_name: AD
+        vm_name: TestPC
         auth:
           url: https://virt-engine1.knockturn.local/ovirt-engine/api
           username: admin@internal
@@ -42,7 +42,7 @@
         network: ovirtmgmt
         profile: ovirtmgmt
         state: plugged
-        vm: AD
+        vm: TestPC
         auth:
           url: https://virt-engine1.knockturn.local/ovirt-engine/api
           username: admin@internal
@@ -50,7 +50,7 @@
           password: '@R3birth!!'
     - name: Configure Boot Device & ISO
       ovirt_vms:
-        name: AD
+        name: TestPC
         cd_iso: Windows_2012R2.ISO
         boot_devices:
           - cdrom
@@ -64,7 +64,7 @@
     - name: Start VM
       ovirt_vms:
         state: running
-        name: AD
+        name: TestPC
         auth:
           url: https://virt-engine1.knockturn.local/ovirt-engine/api
           username: admin@internal
