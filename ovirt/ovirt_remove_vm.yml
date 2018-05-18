@@ -1,0 +1,25 @@
+---
+- name: oVirt - Remove VM
+  hosts: 192.168.0.31
+  connection: local
+  tasks:
+    - name: Remove VM
+      ovirt_vms:
+        state: absent
+        name: TestPC
+        auth:
+          url: https://192.168.0.31/ovirt-engine/api
+          username: admin@internal
+          insecure: True
+          password: '@R3birth!!'
+ 
+    - name: Delete VM Disk
+      ovirt_disk:
+        name: Test_disk1
+        state: absent
+        storage_domain: VM_Storage1
+        auth:
+          url: https://192.168.0.31/ovirt-engine/api
+          username: admin@internal
+          insecure: True
+          password: '@R3birth!!'
