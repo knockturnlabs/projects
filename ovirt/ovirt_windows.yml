@@ -1,6 +1,6 @@
 ---
 - name: oVirt Test
-  hosts: virt-engine1
+  hosts: 192.168.0.31
   connection: local
   tasks:
     - name: Create VM
