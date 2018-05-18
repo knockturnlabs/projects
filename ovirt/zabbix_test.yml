@@ -1,0 +1,128 @@
+---
+- name: Zabbix Test
+  hosts: zabbix
+  tasks:
+  - name: Install Development Tools
+    yum: name="@Development tools" state=latest
+
+  - name: Install Apache
+    yum: name=httpd state=latest
+
+  - name: Install PHP
+    yum: name=php state=latest
+
+  - name: Install Maria-Devel
+    yum: name=mariadb-devel state=latest
+
+  - name: Install Python Devel
+    yum: name=python-devel state=latest
+
+  - name: Install MariaDB
+    yum: name=mariadb-server state=latest
+
+  - name: Install Python PIP
+    yum: name=python-pip state=latest
+
+  - name: Install MYSQL-python Module
+    pip:
+      name: mysql-python
+
+  - name: Enable & Start MariaDB Service
+    systemd:
+      name: mariadb
+      enabled: yes
+      state: started 
+
+  - name: delete anonymous MySQL server user for {{ ansible_hostname }}
+    mysql_user: user="" host="{{ ansible_hostname }}" state="absent"
+
+  - name: delete anonymous MySQL server user for localhost
+    mysql_user: user="" state="absent"
+
+  - name: Create Zabbix DB
+    mysql_db: name=zabbix state=present encoding=utf8
+
+  - name: Change root user password on first run
+    mysql_user: login_user=root
+                login_password=''
+                name=zabbix
+                password=z4bb1xp4ssw0rd
+                priv=zabbix.*:ALL,GRANT
+                host={{ item }}
+    with_items:
+      - localhost
+
+  - name: remove the MySQL test database
+    mysql_db: db=test state=absent
+
+  - name: Install Zabbix RPM
+    yum: name=http://repo.zabbix.com/zabbix/3.4/rhel/7/x86_64/zabbix-release-3.4-2.el7.noarch.rpm
+
+  - name: Install Yum-Config-Manager
+    yum: name=yum-utils state=latest
+
+  - name: Install Zabbix WebGUI Prerequisites
+    command: yum-config-manager --enable rhel-7-server-optional-rpms
+
+  - name: Install Zabbix Server
+    yum: name=zabbix-server-mysql state=latest
+
+  - name: Install Zabbix Proxy with MySQL
+    yum: name=zabbix-proxy-mysql state=latest
+
+  - name: Install Zabbix Frontend
+    yum: name=zabbix-web-mysql state=latest
+
+ # - name: Import Initial MySQL Schema
+ #   shell: zcat /usr/share/doc/zabbix-server-mysql*/create.sql.gz | mysql -u zabbix -pz4bb1xp4ssw0rd -D zabbix
+
+  - name: Update Zabbix Config File
+    copy:
+      src: /playbooks/ovirt/zabbix_server.conf
+      dest: /etc/zabbix/zabbix_server.conf
+      owner: root
+      group: zabbix
+      mode: 0640
+
+  - name: Enable & Start Zabbix Server
+    systemd:
+      name: zabbix-server
+      state: started
+      enabled: yes
+
+  - name: Update PHP Config File
+    copy:
+      src: /playbooks/ovirt/zabbix.conf
+      dest: /etc/httpd/conf.d/zabbix.conf
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Disable SE Linux
+    command: setenforce 0
+
+  - name: Make Persistent
+    copy:
+      src: /playbooks/ovirt/config
+      dest: /etc/selinux/config
+      owner: root
+      group: root
+      mode: 0644
+  - name: Open FirewallD Port 80
+    firewalld:
+      port: 80/tcp
+      permanent: true
+      state: enabled
+      immediate: yes
+
+  - name: Open FirewallD Port 443
+    firewalld:
+      port: 443/tcp
+      permanent: true
+      state: enabled
+      immediate: yes
+    
+  - name: Restart Apache 
+    service:
+      name: httpd
+      state: restarted 

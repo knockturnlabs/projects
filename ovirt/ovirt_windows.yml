@@ -1,0 +1,72 @@
+---
+- name: oVirt Test
+  hosts: virt-engine1
+  connection: local
+  tasks:
+    - name: Create VM
+      ovirt_vms:
+        state: present
+        name: AD
+        cluster: Default
+        memory: 2GiB
+        cpu_cores: 2
+        cpu_sockets: 2
+        cpu_shares: 1024
+        type: server
+        operating_system: windows_2012R2x64
+        storage_domain: VM_Storage1
+        nics:
+          - name: nic1
+        auth:
+          url: https://virt-engine1.knockturn.local/ovirt-engine/api
+          username: admin@internal
+          insecure: True
+          password: '@R3birth!!'
+    - name: Create VM Disk
+      ovirt_disk:
+        format: cow
+        interface: virtio
+        name: AD_disk1
+        size: 50GiB
+        state: present
+        storage_domain: VM_Storage1
+        vm_name: AD
+        auth:
+          url: https://virt-engine1.knockturn.local/ovirt-engine/api
+          username: admin@internal
+          insecure: True
+          password: '@R3birth!!'
+    - name: Edit VM Network
+      ovirt_nics:
+        name: nic1
+        network: ovirtmgmt
+        profile: ovirtmgmt
+        state: plugged
+        vm: AD
+        auth:
+          url: https://virt-engine1.knockturn.local/ovirt-engine/api
+          username: admin@internal
+          insecure: True
+          password: '@R3birth!!'
+    - name: Configure Boot Device & ISO
+      ovirt_vms:
+        name: AD
+        cd_iso: Windows_2012R2.ISO
+        boot_devices:
+          - cdrom
+          - hd
+        state: stopped
+        auth:
+          url: https://virt-engine1.knockturn.local/ovirt-engine/api
+          username: admin@internal
+          insecure: True
+          password: '@R3birth!!'
+    - name: Start VM
+      ovirt_vms:
+        state: running
+        name: AD
+        auth:
+          url: https://virt-engine1.knockturn.local/ovirt-engine/api
+          username: admin@internal
+          insecure: True
+          password: '@R3birth!!'
