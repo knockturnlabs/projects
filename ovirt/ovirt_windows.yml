@@ -6,14 +6,14 @@
     - name: Create VM
       ovirt_vms:
         state: present
-        name: TestPC
+        name: TestWordPress
         cluster: Default
-        memory: 1GiB
+        memory: 2GiB
         cpu_cores: 2
         cpu_sockets: 2
         cpu_shares: 1024
         type: server
-        operating_system: windows_2012R2x64
+        operating_system: ubuntu_14_04
         storage_domain: VM_Storage1
         nics:
           - name: nic1
@@ -26,11 +26,11 @@
       ovirt_disk:
         format: cow
         interface: virtio
-        name: Test_disk1
-        size: 50GiB
+        name: TestWordPress_disk1
+        size: 100GiB
         state: present
         storage_domain: VM_Storage1
-        vm_name: TestPC
+        vm_name: TestWordPress
         auth:
           url: https://192.168.0.31/ovirt-engine/api
           username: admin@internal
@@ -42,7 +42,7 @@
         network: ovirtmgmt
         profile: ovirtmgmt
         state: plugged
-        vm: TestPC
+        vm: TestWordPress
         auth:
           url: https://192.168.0.31/ovirt-engine/api
           username: admin@internal
@@ -50,8 +50,8 @@
           password: '@R3birth!!'
     - name: Configure Boot Device & ISO
       ovirt_vms:
-        name: TestPC
-        cd_iso: Windows_2012R2.ISO
+        name: TestWordPress
+        cd_iso: ubuntu-14.04.5-server-amd64.iso
         boot_devices:
           - cdrom
           - hd
@@ -64,7 +64,7 @@
     - name: Start VM
       ovirt_vms:
         state: running
-        name: TestPC
+        name: TestWordPress
         auth:
           url: https://192.168.0.31/ovirt-engine/api
           username: admin@internal

@@ -1,0 +1,39 @@
+---
+- name: Cisco ASA Test
+  hosts: asa
+  gather_facts: no
+  connection: local
+  vars:
+    cli:
+      host: "{{ inventory_hostname }}"
+      username: zgould
+      password: '@R3birth!!'
+      authorize: yes
+      auth_pass: '@R3birth!!'
+  
+  tasks:
+    - name: Create Network Object
+      asa_config:
+        lines:
+          - object network ad
+        provider: "{{ cli }}"
+
+    - name: Add Host IP To Network Object
+      asa_config:
+        lines:
+          - host 192.168.0.10
+        parents: ['object network ad']
+        provider: "{{ cli }}"
+
+    - name: Add NAT to Network Object
+      asa_config:
+        lines:
+          - nat (inside,outside) static interface service tcp 3389 3389
+        parents: ['object network ad']
+        provider: "{{ cli }}"
+
+    - name: Add ACL For Access
+      asa_acl:
+        lines:
+          - access-list acl_out permit tcp any object ad eq 3389
+        provider: "{{ cli }}"
