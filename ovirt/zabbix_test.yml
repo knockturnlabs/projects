@@ -121,8 +121,23 @@
       permanent: true
       state: enabled
       immediate: yes
-    
+
+  - name: Open FirewallD Port 10050/TCP
+    firewalld:
+      port: 10050/tcp
+      permanent: true
+      state: enabled
+      immediate: yes
+
+  - name: Open FirewallD Port 10051/TCP
+    firewalld:
+      port: 10051/tcp
+      permanent: true
+      state: enabled
+      immediate: yes
+
   - name: Restart Apache 
     service:
       name: httpd
-      state: restarted 
+      enabled: yes
+      state: started 

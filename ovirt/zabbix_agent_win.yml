@@ -1,0 +1,37 @@
+---
+- name: Zabbix Agent Install (Windows)
+  hosts: ad
+  gather_facts: no
+  tasks:
+  - name: Download Zabbix .Zip
+    win_get_url:
+      url: https://www.zabbix.com/downloads/3.4.6/zabbix_agents_3.4.6.win.zip
+      dest: C:\
+
+  - name: Unzip Zabbix Package
+    win_unzip:
+      src: C:\zabbix_agents_3.4.6.win.zip
+      dest: C:\zabbix_agent
+
+  - name: Copy Config File To Windows Host
+    win_copy:
+      src: /playbooks/ovirt/zabbix_agentd_win.conf
+      dest: C:\zabbix_agent\zabbix_agentd.win.conf
+
+  - name: Enable Zabbix Service
+    win_command: C:\zabbix_agent\bin\win64\zabbix_agentd.exe --config C:\zabbix_agent\zabbix_agentd.win.conf --install
+
+  - name: Start Zabbix Service
+    win_service:
+      name: Zabbix Agent
+      start_mode: auto
+      state: started
+
+  - name: Disable Windows Firewall
+    win_firewall:
+      state: disabled
+      profiles:
+        - Domain
+        - Private
+        - Public
+
