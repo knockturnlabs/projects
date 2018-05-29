@@ -2,7 +2,6 @@
 - name: Set Static IPv4 Address
   hosts: localhost
   gather_facts: no
-  connection: local
   vars:
     filepath: /etc/sysconfig/network-scripts/ifcfg-{{ interface }}
     interface: eth0
@@ -16,6 +15,8 @@
         path: "{{ filepath }}"
         regexp: '^BOOTPROTO="dhcp"'
         line: 'BOOTPROTO="static"'
+        state: present
+        create: yes
 
     - name: Set IP Address
       lineinfile:
@@ -32,6 +33,11 @@
         path: "{{ filepath }}"
         line: 'GATEWAY="192.168.0.1"'
 
+    - name: Set Device Type To Ethernet
+      lineinfile:
+        path: "{{ filepath }}"
+        line: 'TYPE="Ethernet"'
+
     - name: Set DNS1
       lineinfile:
         path: "{{ filepath }}"
@@ -46,6 +52,7 @@
       lineinfile:
         path: "{{ filepath }}"
         line: 'DNS3="{{ dns3 }}"'
+        backup: yes
 
     - name: Restart Networking
       systemd:
