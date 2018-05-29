@@ -1,0 +1,53 @@
+---
+- name: Set Static IPv4 Address
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  vars:
+    filepath: /etc/sysconfig/network-scripts/ifcfg-{{ interface }}
+    interface: eth0
+    dns1: 192.168.0.10
+    dns2: 8.8.8.8
+    dns3:
+
+  tasks:
+    - name: Set Boot Protocol To Static
+      lineinfile:
+        path: "{{ filepath }}"
+        regexp: '^BOOTPROTO="dhcp"'
+        line: 'BOOTPROTO="static"'
+
+    - name: Set IP Address
+      lineinfile:
+        path: "{{ filepath }}"
+        line: 'IPADDR="192.168.0.7"'
+
+    - name: Set NetMask
+      lineinfile:
+        path: "{{ filepath }}"
+        line: 'NETMASK="255.255.255.0"'
+
+    - name: Set Gateway
+      lineinfile:
+        path: "{{ filepath }}"
+        line: 'GATEWAY="192.168.0.1"'
+
+    - name: Set DNS1
+      lineinfile:
+        path: "{{ filepath }}"
+        line: 'DNS1="{{ dns1 }}"'
+
+    - name: Set DNS2
+      lineinfile:
+        path: "{{ filepath }}"
+        line: 'DNS2="{{ dns2 }}"'
+
+    - name: Set DNS3
+      lineinfile:
+        path: "{{ filepath }}"
+        line: 'DNS3="{{ dns3 }}"'
+
+    - name: Restart Networking
+      systemd:
+        name: network
+        state: restarted
